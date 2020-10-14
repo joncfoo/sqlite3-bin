@@ -6,18 +6,20 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    container: centos:6.10
+    container: ubuntu:focal
     steps:
       - name: Build
         run: |
-          yum install -y gcc
+          set -x
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update
+          apt-get install -y wget gcc make
           mkdir sqlite
           cd sqlite
-          curl -fsSL https://sqlite.org/2020/sqlite-autoconf-${{ github.ref }}.tar.gz | tar -xz --strip-components=1
+          wget -O - https://sqlite.org/2020/sqlite-autoconf-$(echo "${GITHUB_REF}" | awk -F / '{ print $3 }').tar.gz | tar -xz --strip-components=1
           ./configure
           make
           chown 1000:1000 sqlite3
-          cp sqlite3 ../
 
       - name: Create release
         id: create_release
@@ -37,6 +39,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./sqlite3
+          asset_path: ./sqlite/sqlite3
           asset_name: sqlite3
           asset_content_type: application/x-executable
