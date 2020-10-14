@@ -6,20 +6,12 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    container: ubuntu:focal
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Build
-        run: |
-          set -x
-          export DEBIAN_FRONTEND=noninteractive
-          apt-get update
-          apt-get install -y wget gcc make
-          mkdir sqlite
-          cd sqlite
-          wget -O - https://sqlite.org/2020/sqlite-autoconf-$(echo "${GITHUB_REF}" | awk -F / '{ print $3 }').tar.gz | tar -xz --strip-components=1
-          ./configure
-          make
-          chown 1000:1000 sqlite3
+        run: make
 
       - name: Create release
         id: create_release
@@ -39,6 +31,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./sqlite/sqlite3
+          asset_path: ./sqlite3
           asset_name: sqlite3
           asset_content_type: application/x-executable
