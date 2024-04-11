@@ -1,4 +1,4 @@
 .PHONY: build
 
 build:
-	docker run --rm -e GITHUB_REF=${GITHUB_REF} -v $(shell pwd):/work -w /work centos:6.10 /work/build
+	docker run --rm -v $(shell pwd):/work -w /work centos:centos7.9.2009 /work/build
